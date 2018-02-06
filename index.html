@@ -43,12 +43,10 @@
 
   <h1>Torrens Ipsum</h1>
 
-  <label for="sentences">Frases: <span id="sentences-settings"></span></label>
-  <input id="sentences" type="range" min="1" max="50" value="10" onchange="updateContent()"/>
-  <label for="delta">Variação de frases: <span id="delta-settings"></span></label>
-  <input id="delta" type="range" min="0" max="100" value="5" onchange="updateContent()"/>
   <label for="paragraphs">Parágrafos: <span id="paragraphs-settings"></span></label>
   <input id="paragraphs" type="range" min="1" max="50" value="3" onchange="updateContent()"/>
+  <label for="sentences">Tamanho do parágrafo</label>
+  <input id="sentences" type="range" min="1" max="50" value="10" onchange="updateContent()"/>
 
   <main id="main"></main>
   <section id="excerpt">
@@ -59,7 +57,12 @@
     de <a href="https://iguatemigarin.github.io/torrens-ipsum/">Torrens Ipsum</a>
   </section>
   <script>
-    const words = "não existe lógica de programação".split(" ")
+    const availableSentences = [
+      "não existe lógica de programação",
+      "sai do meu grupo",
+      "aqui não pode ser feliz",
+      "vai postar no grupo da senhora sua avó"
+    ].map(s => s.split(" "))
     const endings = "........!?".split("")
     
     const makeArray = fromSize => new Array(fromSize).fill(undefined)
@@ -80,21 +83,20 @@
     const randomizeArray = someArray => someArray.reduce(reduceToRandom, [[], someArray])[0]
     
     const makeSentence = () =>
-      randomizeArray(words)
+      randomizeArray(getRandomItemFromArray(availableSentences))
         .join(" ")
         + getRandomItemFromArray(endings)
     
-    const makeSentences = (count, delta) => () => {
-      const offsetDelta = delta>>1 > count ? count : delta
-      return makeArray(count + parseInt(Math.random()*offsetDelta - (offsetDelta>>1)))
+    const makeSentences = count => () => {
+      return makeArray(count + parseInt(Math.random()*count - (count>>1)))
         .map(makeSentence)
         .map(upperFirstChar)
         .join(" ")
     }
     
-    const makeParagraphs = (paragraphsCount, sentencesCount, delta) =>
+    const makeParagraphs = (paragraphsCount, sentencesCount) =>
       makeArray(paragraphsCount)
-        .map(makeSentences(sentencesCount, delta))
+        .map(makeSentences(sentencesCount))
     
     const makePTag = contents => "<p>" + contents + "</p>"
     
@@ -102,17 +104,13 @@
       window.main.innerHTML =
         makeParagraphs(
           parseInt(window.paragraphs.value, 10),
-          parseInt(window.sentences.value, 10),
-          parseInt(window.delta.value, 10)
+          parseInt(window.sentences.value, 10)
         )
         .map(makePTag)
         .join("")
     
     const renderSettings = () =>
-      ['sentences', 'delta', 'paragraphs']
-        .map(setting =>
-          window[setting + '-settings'].textContent = window[setting].value
-        )
+      window['paragraphs-settings'].textContent = window.paragraphs.value
     
     const renderExcerpt = () => {
       window['paragraphs-count'].textContent = window.paragraphs.value
@@ -129,6 +127,6 @@
 
     updateContent()
   </script>
-  <a href="https://github.com/iguatemigarin/torrens-ipsum"><img style="transform: rotate(90deg); position: fixed; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+  <a href="https://github.com/iguatemigarin/torrens-ipsum"><img style="transform: rotate(90deg); position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
 </body>
 </html>
