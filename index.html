@@ -75,27 +75,27 @@
     const words = "não existe lógica de programação".split(" ")
     const endings = "........!?".split("")
     
-    const makeArray = size => new Array(size).fill(undefined)
+    const makeArray = fromSize => new Array(fromSize).fill(undefined)
     const upperFirstChar = word => word[0].toUpperCase() + word.slice(1)
-    const getRandomItemFromList = list => list[parseInt(Math.random()*list.length)]
-    const negateItems = list => item => list.indexOf(item) === -1
-    const negateFormerList = (list1, list2) => list1.filter(negateItems(list2))
+    const getRandomItemFromArray = someArray => someArray[parseInt(Math.random()*someArray.length)]
+    const negateItems = someArray => item => someArray.indexOf(item) === -1
+    const negateFormerArray = (someArray1, someArray2) => someArray1.filter(negateItems(someArray2))
     
     const reduceToRandom = acumulator => {
-      const currentList = acumulator[0]
-        .concat([getRandomItemFromList(acumulator[1])])
+      const currentArray = acumulator[0]
+        .concat([getRandomItemFromArray(acumulator[1])])
       return [
-        currentList,
-        negateFormerList(acumulator[1], currentList)
+        currentArray,
+        negateFormerArray(acumulator[1], currentArray)
       ]
     }
     
-    const randomizeList = list => list.reduce(reduceToRandom, [[], list])[0]
+    const randomizeArray = someArray => someArray.reduce(reduceToRandom, [[], someArray])[0]
     
     const makeSentence = () =>
-      randomizeList(words)
+      randomizeArray(words)
         .join(" ")
-        + getRandomItemFromList(endings)
+        + getRandomItemFromArray(endings)
     
     const makeSentences = (count, delta) => () => {
       const offsetDelta = delta>>1 > count ? count : delta
