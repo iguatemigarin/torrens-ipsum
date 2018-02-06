@@ -22,10 +22,16 @@
   Sem dependências externas.
   Não precisa nem de servidor.
   Carrega super rápido.
-  Tentei fazer como manda o manual: sem loop, só tem side effect pra
-  renderizar, sem condicional definindo fluxo, sei lá
+  Tentei fazer como manda o manual funcional: sem loop, só tem side
+  effect pra renderizar, sem condicional definindo fluxo, sei lá.
+
+  Só sei que me diverti mais fazendo isso do que nos últimos
+  projetos em que trabalhei e isso me fez questionar minha existência.
 
   Qualquer coisa manda um abraço pra iguatemi@gmail.com
+
+  Se quiser me ensinar a programar melhor no paradigma funcional, por
+  favor, QUERO!
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -33,7 +39,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Torrens Ipsum - Tipsum Generator Tabajara</title>
+  <title>Torrens Ipsum - Tipsum Generator</title>
   <style>
     html { text-align: center; background: #faf1b0; height: 100%; } 
     body { font-family: serif; padding: 20px; margin: 5px auto; text-align: left; min-height: 90%; max-width: 600px; box-shadow: 0 0 10px #000;  background: #fff; }
@@ -42,7 +48,7 @@
     h1 { font-style: italic; }
     label { display: block; }
     input { width: 100% }
-    #excerpt { font-weight: bold; }
+    #excerpt { font-weight: bold; text-align: center; }
     a { color: #000 }
   </style>
 </head>
@@ -66,80 +72,76 @@
     de <a href="/">Torrens Ipsum</a>
   </section>
   <script>
-    var words = "não existe lógica de programação".split(" ")
-    var endings = "........!?".split("")
-    updateContent()
-    function makeArray (size) {
-      return new Array(size).fill(undefined)
-    }
-    function upperFirstChar (word) {
-      return word[0].toUpperCase() + word.slice(1)
-    }
-    function getRandomItemFromList (list) {
-      return list[parseInt(Math.random()*list.length)]
-    }
-    function negateItems(list) { return function (item) {
-      return list.indexOf(item) === -1
-    }}
-    function negateFormerList(list1, list2) {
-      return list1.filter(negateItems(list2))
-    }
-    function reduceToRandom (acumulator) {
-      var currentList = acumulator[0]
+    const words = "não existe lógica de programação".split(" ")
+    const endings = "........!?".split("")
+    
+    const makeArray = size => new Array(size).fill(undefined)
+    const upperFirstChar = word => word[0].toUpperCase() + word.slice(1)
+    const getRandomItemFromList = list => list[parseInt(Math.random()*list.length)]
+    const negateItems = list => item => list.indexOf(item) === -1
+    const negateFormerList = (list1, list2) => list1.filter(negateItems(list2))
+    
+    const reduceToRandom = acumulator => {
+      const currentList = acumulator[0]
         .concat([getRandomItemFromList(acumulator[1])])
       return [
         currentList,
         negateFormerList(acumulator[1], currentList)
       ]
     }
-    function randomizeList(list) {
-      return list.reduce(reduceToRandom, [[], list])[0]
-    }
-    function makeSentence () {
-      return randomizeList(words)
+    
+    const randomizeList = list => list.reduce(reduceToRandom, [[], list])[0]
+    
+    const makeSentence = () =>
+      randomizeList(words)
         .join(" ")
         + getRandomItemFromList(endings)
-    }
-    function makeSentences (count, delta) { return function () {
+    
+    const makeSentences = (count, delta) => () => {
       const offsetDelta = delta>>1 > count ? count : delta
       return makeArray(count + parseInt(Math.random()*offsetDelta - (offsetDelta>>1)))
         .map(makeSentence)
         .map(upperFirstChar)
         .join(" ")
-    }}
-    function makeParagraphs (paragraphsCount, sentencesCount, delta) {
-      return makeArray(paragraphsCount)
+    }
+    
+    const makeParagraphs = (paragraphsCount, sentencesCount, delta) =>
+      makeArray(paragraphsCount)
         .map(makeSentences(sentencesCount, delta))
-    }
-    function makePTag (contents) {
-      return "<p>" + contents + "</p>"
-    }
-    function renderParagraphs () {
-      window.main.innerHTML = makeParagraphs(
+    
+    const makePTag = contents => "<p>" + contents + "</p>"
+    
+    const renderParagraphs = () =>
+      window.main.innerHTML =
+        makeParagraphs(
           parseInt(window.paragraphs.value, 10),
           parseInt(window.sentences.value, 10),
           parseInt(window.delta.value, 10)
         )
         .map(makePTag)
         .join("")
-    }
-    function renderSettings () {
-      ['sentences', 'delta', 'paragraphs'].map(function (setting) {
-        window[setting + '-settings'].textContent = window[setting].value
-      })
-    }
-    function renderExcerpt () {
+    
+    const renderSettings = () =>
+      ['sentences', 'delta', 'paragraphs']
+        .map(setting =>
+          window[setting + '-settings'].textContent = window[setting].value
+        )
+    
+    const renderExcerpt = () => {
       window['paragraphs-count'].textContent = window.paragraphs.value
       window['words-count'].textContent = window.main.textContent.split(" ").length
       window['chars-count'].textContent = window.main.textContent.length
       window['paragraphs-plural'].textContent = parseInt(window.paragraphs.value, 10) > 1 ? "s" : ""
     }
-    function updateContent () {
+    
+    const updateContent = () => {
       renderParagraphs()
       renderSettings()
       renderExcerpt()
     }
+
+    updateContent()
   </script>
-  <a href="https://github.com/iguatemi"><img style="transform: rotate(90deg); position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+  <a href="https://github.com/iguatemigarin/torrens-ipsum"><img style="transform: rotate(90deg); position: fixed; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
 </body>
 </html>
