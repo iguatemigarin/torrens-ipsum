@@ -1,0 +1,145 @@
+<!--
+              DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
+
+ Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
+------------------------------------------------------------------
+  Cansado de usar 543543 ferramentas pra fazer uma droga de uma
+  página dinâmica, resolvi exercitar o old style e um pouce de FP.
+
+  Eis o resultado.
+
+  Compatível com todas as merdas de navegadores.
+  Sem dependências externas.
+  Não precisa nem de servidor.
+  Carrega super rápido.
+  Tentei fazer como manda o manual: sem loop, só tem side effect pra
+  renderizar, sem condicional definindo fluxo, sei lá
+
+  Qualquer coisa manda um abraço pra iguatemi@gmail.com
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Torrens Ipsum - Tipsum Generator Tabajara</title>
+  <style>
+    html { text-align: center; background: #faf1b0; height: 100%; } 
+    body { font-family: serif; padding: 20px; margin: 5px auto; text-align: left; min-height: 90%; max-width: 600px; box-shadow: 0 0 10px #000;  background: #fff; }
+    main { margin: 20px 0 50px }
+    main p { text-indent: 40pt; }
+    h1 { font-style: italic; }
+    label { display: block; }
+    input { width: 100% }
+    #excerpt { font-weight: bold; }
+    a { color: #000 }
+  </style>
+</head>
+<body>
+
+  <h1>Torrens Ipsum</h1>
+
+  <label for="sentences">Frases: <span id="sentences-settings"></span></label>
+  <input id="sentences" type="range" min="1" max="50" value="10" onchange="updateContent()"/>
+  <label for="delta">Variação de frases: <span id="delta-settings"></span></label>
+  <input id="delta" type="range" min="0" max="100" value="5" onchange="updateContent()"/>
+  <label for="paragraphs">Parágrafos: <span id="paragraphs-settings"></span></label>
+  <input id="paragraphs" type="range" min="1" max="50" value="3" onchange="updateContent()"/>
+
+  <main id="main"></main>
+  <section id="excerpt">
+    Gerado
+    <span id="paragraphs-count"></span> parágrafo<span id="paragraphs-plural">s</span>,
+    <span id="words-count"></span> palavras e
+    <span id="chars-count"></span> caracteres
+    de <a href="/">Torrens Ipsum</a>
+  </section>
+  <script>
+    var words = "não existe lógica de programação".split(" ")
+    var endings = "........!?".split("")
+    updateContent()
+    function makeArray (size) {
+      return new Array(size).fill(undefined)
+    }
+    function upperFirstChar (word) {
+      return word[0].toUpperCase() + word.slice(1)
+    }
+    function getRandomItemFromList (list) {
+      return list[parseInt(Math.random()*list.length)]
+    }
+    function negateItems(list) { return function (item) {
+      return list.indexOf(item) === -1
+    }}
+    function negateFormerList(list1, list2) {
+      return list1.filter(negateItems(list2))
+    }
+    function reduceToRandom (acumulator) {
+      var currentList = acumulator[0]
+        .concat([getRandomItemFromList(acumulator[1])])
+      return [
+        currentList,
+        negateFormerList(acumulator[1], currentList)
+      ]
+    }
+    function randomizeList(list) {
+      return list.reduce(reduceToRandom, [[], list])[0]
+    }
+    function makeSentence () {
+      return randomizeList(words)
+        .join(" ")
+        + getRandomItemFromList(endings)
+    }
+    function makeSentences (count, delta) { return function () {
+      const offsetDelta = delta>>1 > count ? count : delta
+      return makeArray(count + parseInt(Math.random()*offsetDelta - (offsetDelta>>1)))
+        .map(makeSentence)
+        .map(upperFirstChar)
+        .join(" ")
+    }}
+    function makeParagraphs (paragraphsCount, sentencesCount, delta) {
+      return makeArray(paragraphsCount)
+        .map(makeSentences(sentencesCount, delta))
+    }
+    function makePTag (contents) {
+      return "<p>" + contents + "</p>"
+    }
+    function renderParagraphs () {
+      window.main.innerHTML = makeParagraphs(
+          parseInt(window.paragraphs.value, 10),
+          parseInt(window.sentences.value, 10),
+          parseInt(window.delta.value, 10)
+        )
+        .map(makePTag)
+        .join("")
+    }
+    function renderSettings () {
+      ['sentences', 'delta', 'paragraphs'].map(function (setting) {
+        window[setting + '-settings'].textContent = window[setting].value
+      })
+    }
+    function renderExcerpt () {
+      window['paragraphs-count'].textContent = window.paragraphs.value
+      window['words-count'].textContent = window.main.textContent.split(" ").length
+      window['chars-count'].textContent = window.main.textContent.length
+      window['paragraphs-plural'].textContent = parseInt(window.paragraphs.value, 10) > 1 ? "s" : ""
+    }
+    function updateContent () {
+      renderParagraphs()
+      renderSettings()
+      renderExcerpt()
+    }
+  </script>
+  <a href="https://github.com/iguatemi"><img style="transform: rotate(90deg); position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+</body>
+</html>
